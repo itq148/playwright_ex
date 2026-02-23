@@ -74,9 +74,10 @@ defmodule PlaywrightEx.MixProject do
 
   defp docs do
     [
-      main: "PlaywrightEx",
+      main: "readme",
       source_ref: "v#{@version}",
       extras: [
+        "README.md": [title: "Overview"],
         "CHANGELOG.md": [title: "Changelog"]
       ],
       nest_modules_by_prefix: [PlaywrightEx],
