@@ -4,8 +4,7 @@ defmodule PlaywrightEx.BrowserType do
 
   There is no official documentation, since this is considered Playwright internal.
 
-  References:
-  - https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/client/browserType.ts
+  Reference: https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/client/browserType.ts
   """
 
   alias PlaywrightEx.ChannelResponse

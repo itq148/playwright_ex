@@ -4,8 +4,7 @@ defmodule PlaywrightEx.Frame do
 
   There is no official documentation, since this is considered Playwright internal.
 
-  References:
-  - https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/client/frame.ts
+  Reference: https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/client/frame.ts
   """
 
   alias PlaywrightEx.ChannelResponse
