@@ -261,4 +261,88 @@ defmodule PlaywrightEx.BrowserContext do
     |> Connection.send(%{guid: context_id, method: :addInitScript, params: Map.new(opts)}, timeout)
     |> ChannelResponse.unwrap(& &1)
   end
+
+  schema =
+    NimbleOptions.new!(
+      connection: PlaywrightEx.Channel.connection_opt(),
+      timeout: PlaywrightEx.Channel.timeout_opt(),
+      time: [
+        type: {:or, [:non_neg_integer, :string, {:struct, DateTime}]},
+        required: false,
+        doc:
+          "Optional base time to install, as milliseconds since epoch, an ISO8601 datetime, or a string accepted by Playwright."
+      ]
+    )
+
+  @doc """
+  Install fake implementations for the other time-related functions (e.g. `clock_fast_forward/2`).
+
+  Reference: https://playwright.dev/docs/api/class-clock#clock-install
+
+  ## Options
+  #{NimbleOptions.docs(schema)}
+  """
+  @schema schema
+  @type clock_install_opt :: unquote(NimbleOptions.option_typespec(schema))
+  @spec clock_install(PlaywrightEx.guid(), [clock_install_opt() | PlaywrightEx.unknown_opt()]) ::
+          {:ok, any()} | {:error, any()}
+  def clock_install(context_id, opts \\ []) do
+    {connection, opts} = opts |> PlaywrightEx.Channel.validate_known!(@schema) |> Keyword.pop!(:connection)
+    {timeout, opts} = Keyword.pop!(opts, :timeout)
+    {time, opts} = Keyword.pop(opts, :time)
+
+    params =
+      case time do
+        nil -> %{}
+        time when is_integer(time) -> %{time_number: time}
+        time when is_binary(time) -> %{time_string: time}
+        %DateTime{} = time -> %{time_string: DateTime.to_iso8601(time)}
+      end
+
+    connection
+    |> Connection.send(%{guid: context_id, method: :clock_install, params: Map.merge(params, Map.new(opts))}, timeout)
+    |> ChannelResponse.unwrap(& &1)
+  end
+
+  schema =
+    NimbleOptions.new!(
+      connection: PlaywrightEx.Channel.connection_opt(),
+      timeout: PlaywrightEx.Channel.timeout_opt(),
+      ticks: [
+        type: {:or, [:non_neg_integer, :string]},
+        required: true,
+        doc: "Time to advance, in milliseconds or in `ss` / `mm:ss` / `hh:mm:ss` string format."
+      ]
+    )
+
+  @doc """
+  Advance the clock by jumping forward in time. Only fires due timers at most once. This is equivalent to user closing the laptop lid for a while and reopening it later, after given time..
+
+  Reference: https://playwright.dev/docs/api/class-clock#clock-fast-forward
+
+  ## Options
+  #{NimbleOptions.docs(schema)}
+  """
+  @schema schema
+  @type clock_fast_forward_opt :: unquote(NimbleOptions.option_typespec(schema))
+  @spec clock_fast_forward(PlaywrightEx.guid(), [clock_fast_forward_opt() | PlaywrightEx.unknown_opt()]) ::
+          {:ok, any()} | {:error, any()}
+  def clock_fast_forward(context_id, opts \\ []) do
+    {connection, opts} = opts |> PlaywrightEx.Channel.validate_known!(@schema) |> Keyword.pop!(:connection)
+    {timeout, opts} = Keyword.pop!(opts, :timeout)
+    {ticks, opts} = Keyword.pop!(opts, :ticks)
+
+    params =
+      case ticks do
+        ticks when is_integer(ticks) -> %{ticks_number: ticks}
+        ticks when is_binary(ticks) -> %{ticks_string: ticks}
+      end
+
+    connection
+    |> Connection.send(
+      %{guid: context_id, method: :clock_fast_forward, params: Map.merge(params, Map.new(opts))},
+      timeout
+    )
+    |> ChannelResponse.unwrap(& &1)
+  end
 end
